@@ -22,13 +22,13 @@ sub r1, ra32, 1
 mov r3, ra38; mov r2, 0.0
 :accumulate_loop
 	mov ra56, r0
-	ldtmu0
 	fadd.ifnn ra0, ra0, r2
 	sub.setf ra39, r1, r3
-	brr.anynn -, :accumulate_loop
-	mov r2, r4
 	add r0, r0, ra1
+	brr.anynn -, :accumulate_loop
 	add r3, r3, ra2
+	ldtmu0
+	mov r2, r4
 
 #load vector sums
 mov r0, ra0
