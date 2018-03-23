@@ -32,47 +32,25 @@ mov r3, ra38; mov r2, 0.0
 
 #load vector sums
 mov r0, ra0
-#clear r2
-mov r2, 0.0
+nop
 #sum them
-fadd r2, r2, r0
-mov r1, r0 << 1
-fadd r2, r2, r1
-mov r0, r1 << 1
-fadd r2, r2, r0
-mov r1, r0 << 1
-fadd r2, r2, r1
-mov r0, r1 << 1
-fadd r2, r2, r0
-mov r1, r0 << 1
-fadd r2, r2, r1
-mov r0, r1 << 1
-fadd r2, r2, r0
-mov r1, r0 << 1
-fadd r2, r2, r1
-mov r0, r1 << 1
-fadd r2, r2, r0
-mov r1, r0 << 1
-fadd r2, r2, r1
-mov r0, r1 << 1
-fadd r2, r2, r0
-mov r1, r0 << 1
-fadd r2, r2, r1
-mov r0, r1 << 1
-fadd r2, r2, r0
-mov r1, r0 << 1
-fadd r2, r2, r1
-mov r0, r1 << 1
-fadd r2, r2, r0
-mov r1, r0 << 1
-fadd r2, r2, r1
-mov r0, r1 << 1
+mov r1, r0 >> 8
+fadd r0, r0, r1
+nop
+mov r1, r0 >> 4
+fadd r0, r0, r1
+nop
+mov r1, r0 >> 2
+fadd r0, r0, r1
+nop
+mov r1, r0 >> 1
+fadd r0, r0, r1
 
 # Configure the VPM for writing
 ldi rb49, 0xa00
 
-#writes to the VPM with r2
-mov rb48, r2
+#writes to the VPM with r0
+mov rb48, r0
 
 ## move 16 words (1 vector) back to the host (DMA)
 ldi rb49, 0x88010000
