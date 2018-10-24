@@ -6,6 +6,7 @@
 #include <sys/time.h>
 
 #include "mailbox.h"
+#include "qpu.h"
 
 #define GPU_MEM_FLG     0xC
 #define GPU_MEM_MAP     0x0

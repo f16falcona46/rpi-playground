@@ -1,7 +1,5 @@
-// Extraction of rpi hello_fft example
 /*
-BCM2835 "GPU_FFT" release 3.0
-Copyright (c) 2015, Andrew Holme.
+Copyright (c) 2012, Broadcom Europe Ltd.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -26,32 +24,24 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef QPU_H
-#define QPU_H
 
-#define BUS_TO_PHYS(x) ((x)&~0xC0000000)
+#include <linux/ioctl.h>
 
-// V3D spec: http://www.broadcom.com/docs/support/videocore/VideoCoreIV-AG100-R.pdf
-#define V3D_L2CACTL (0xC00020>>2)
-#define V3D_SLCACTL (0xC00024>>2)
-#define V3D_SRQPC   (0xC00430>>2)
-#define V3D_SRQUA   (0xC00434>>2)
-#define V3D_SRQCS   (0xC0043c>>2)
-#define V3D_DBCFG   (0xC00e00>>2)
-#define V3D_DBQITE  (0xC00e2c>>2)
-#define V3D_DBQITC  (0xC00e30>>2)
+#define MAJOR_NUM 100
+#define IOCTL_MBOX_PROPERTY _IOWR(MAJOR_NUM, 0, char *)
+#define DEVICE_FILE_NAME "/dev/vcio"
 
-// Setting this define to zero on Pi 1 allows GPU_FFT and Open GL
-// to co-exist and also improves performance of longer transforms:
-#define VC4_GPU_USE_VC4_L2_CACHE 0 // Pi 1 only: cached=1; direct=0
+int mbox_open();
+void mbox_close(int file_desc);
 
-#define VC4_GPU_NO_FLUSH 1
-#define VC4_GPU_TIMEOUT 2000 // ms
+unsigned get_version(int file_desc);
+unsigned mem_alloc(int file_desc, unsigned size, unsigned align, unsigned flags);
+unsigned mem_free(int file_desc, unsigned handle);
+unsigned mem_lock(int file_desc, unsigned handle);
+unsigned mem_unlock(int file_desc, unsigned handle);
+void *mapmem(unsigned base, unsigned size);
+void unmapmem(void *addr, unsigned size);
 
-struct VC4_GPU_HOST {
-    unsigned mem_flg, mem_map, peri_addr, peri_size;
-};
-
-int vc4_gpu_get_host_info(struct VC4_GPU_HOST *info);
-
-#endif
+unsigned execute_code(int file_desc, unsigned code, unsigned r0, unsigned r1, unsigned r2, unsigned r3, unsigned r4, unsigned r5);
+unsigned execute_qpu(int file_desc, unsigned num_qpus, unsigned control, unsigned noflush, unsigned timeout);
+unsigned qpu_enable(int file_desc, unsigned enable);
