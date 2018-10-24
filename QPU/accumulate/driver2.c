@@ -66,19 +66,30 @@ main (int argc, char **argv)
 		fprintf (stderr, "QPU enable failed.\n");
 		return -1;
 	}
+	struct VC4_GPU_HOST host;
+		if (vc4_gpu_get_host_info(&host)){
+		fprintf(stderr, "QPU fetch of host information (Rpi version, etc.) failed.\n");
+		return -5;
+	}
 	printf ("QPU enabled.\n");
 
 	unsigned uniform_val = atoi (argv[2]);
 	printf ("Uniform value = %d\n", uniform_val);
 
 	unsigned size = sizeof(struct memory_map);
-	unsigned handle = mem_alloc (mb, size, 4096, GPU_MEM_FLG);
+	unsigned handle = mem_alloc (mb, size, 4096, host.mem_flg);
 	if (!handle) {
 		fprintf (stderr, "Unable to allocate %d bytes of GPU memory", size);
 		return -2;
 	}
+	volatile unsigned *peri = (volatile unsigned *) mapmem(host.peri_addr, host.peri_size);
+	if (!peri) {
+		mem_free(mb, handle);
+		qpu_enable(mb, 0);
+		return -4;
+	}
 	unsigned ptr = mem_lock (mb, handle);
-	void *arm_ptr = mapmem (ptr + GPU_MEM_MAP, size);
+	void *arm_ptr = mapmem (BUS_TO_PHYS(ptr + host.mem_map), size);
 	// assert arm_ptr ...
 
 	struct memory_map *arm_map = (struct memory_map *) arm_ptr;
@@ -102,7 +113,7 @@ main (int argc, char **argv)
 		arm_map->msg[i][1] = vc_code;
 	}
 
-	unsigned ret = execute_qpu (mb, NUM_QPUS, vc_msg, 1, 10000);
+	unsigned ret = execute_qpu (mb, NUM_QPUS, vc_msg, VC4_GPU_NO_FLUSH, VC4_GPU_TIMEOUT);
 
 	// check the results!
 	for (int i = 0; i < NUM_QPUS; i++) {
@@ -116,6 +127,7 @@ main (int argc, char **argv)
 
 	printf ("Cleaning up.\n");
 	unmapmem (arm_ptr, size);
+	unmapmem((void*)host.peri_addr, host.peri_size);
 	mem_unlock (mb, handle);
 	mem_free (mb, handle);
 	qpu_enable (mb, 0);
