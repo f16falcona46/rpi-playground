@@ -46,7 +46,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VC4_GPU_USE_VC4_L2_CACHE 0 // Pi 1 only: cached=1; direct=0
 
 #define VC4_GPU_NO_FLUSH 1
-#define VC4_GPU_TIMEOUT 2000 // ms
+#define VC4_GPU_TIMEOUT 10000 // ms
 
 struct VC4_GPU_HOST {
     unsigned mem_flg, mem_map, peri_addr, peri_size;

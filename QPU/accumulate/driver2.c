@@ -116,6 +116,7 @@ main (int argc, char **argv)
 
 	unsigned ret = execute_qpu (mb, NUM_QPUS, vc_msg, VC4_GPU_NO_FLUSH, VC4_GPU_TIMEOUT);
 
+	printf("Return value: %u\n", ret);
 	// check the results!
 	for (int i = 0; i < NUM_QPUS; i++) {
 		for (int j = 0; j < 16; j++) {
